@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sairi Bot - WhatsApp Bot Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: #0a0a1a;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .connect-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+
+        .phone-input {
+            width: 100%;
+            max-width: 350px;
+            background: #1e1e3f;
+            border: 2px solid #2d2d6a;
+            border-radius: 15px;
+            padding: 18px 20px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .phone-input:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        .btn-primary {
+            width: 100%;
+            max-width: 350px;
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+            color: #fff;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .help-text {
+            color: #666;
+            font-size: 13px;
+            margin-top: 20px;
+            max-width: 350px;
+            line-height: 1.5;
+        }
+
+        .pairing-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .pairing-screen.active {
+            display: flex;
+        }
+
+        .pairing-title {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+
+        .code-box {
+            background: linear-gradient(135deg, #1e1e3f 0%, #2d2d6a 100%);
+            border: 3px solid #8b5cf6;
+            border-radius: 20px;
+            padding: 40px 50px;
+            margin-bottom: 30px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .code-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+        }
+
+        .pairing-code {
+            font-size: 48px;
+            font-weight: 800;
+            color: #8b5cf6;
+            letter-spacing: 12px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .copy-hint {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .instructions {
+            background: #1e1e3f;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 400px;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .instructions h3 {
+            color: #8b5cf6;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .instructions ol {
+            color: #9ca3af;
+            padding-left: 20px;
+            line-height: 2;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #8b5cf6;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #8b5cf6;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .dashboard-screen {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .dashboard-screen.active {
+            display: block;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #2d2d6a;
+        }
+
+        .header-info h1 {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #4ade80;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .card {
+            background: #1e1e3f;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            color: #8b5cf6;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #9ca3af;
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: #2d2d6a;
+            border: 1px solid #3d3d8a;
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #8b5cf6;
+        }
+
+        .toggle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .toggle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #2d2d6a;
+        }
+
+        .toggle-item:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-info h4 {
+            color: #fff;
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .toggle-info p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 28px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #8b5cf6;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .commands-box {
+            background: #2d2d6a;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .command {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #3d3d8a;
+        }
+
+        .command:last-child {
+            border-bottom: none;
+        }
+
+        .cmd-name {
+            color: #8b5cf6;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .cmd-desc {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #4ade80;
+            color: #000;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Screen 1: Connect -->
+    <div class="connect-screen" id="connectScreen">
+        <div class="logo">🤖</div>
+        <h1 class="title">Sairi Bot</h1>
+        <p class="subtitle">WhatsApp Bot Panel</p>
+        
+        <input 
+            type="text" 
+            class="phone-input" 
+            id="phoneInput" 
+            placeholder="Masukkan nomor WhatsApp (628xxxxx)"
+            maxlength="15"
+        >
+        
+        <button class="btn-primary" id="connectBtn" onclick="connectBot()">
+            Hubungkan Bot
+        </button>
+        
+        <p class="help-text">
+            Masukkan nomor yang akan dijadikan bot. Pastikan nomor aktif dan bisa menerima notifikasi WhatsApp.
+        </p>
+    </div>
+
+    <!-- Screen 2: Pairing -->
+    <div class="pairing-screen" id="pairingScreen">
+        <h2 class="pairing-title">🔗 Kode Pairing Anda</h2>
+        
+        <div class="code-box" onclick="copyCode()">
+            <div class="pairing-code" id="pairingCode">------</div>
+            <span class="copy-hint">Klik untuk menyalin</span>
+        </div>
+        
+        <div class="instructions">
+            <h3>📱 Cara Menghubungkan:</h3>
+            <ol>
+                <li>Buka WhatsApp di HP Anda</li>
+                <li>Klik Menu (⋮) → Perangkat Tertaut</li>
+                <li>Pilih "Link dengan nomor telepon"</li>
+                <li>Masukkan kode 8 digit di atas</li>
+                <li>Tunggu hingga terhubung otomatis</li>
+            </ol>
+        </div>
+        
+        <div class="loading">
+            <div class="spinner"></div>
+            <span>Menunggu koneksi dari WhatsApp...</span>
+        </div>
+    </div>
+
+    <!-- Screen 3: Dashboard -->
+    <div class="dashboard-screen" id="dashboardScreen">
+        <div class="header">
+            <div class="header-info">
+                <h1>🤖 Sairi Bot</h1>
+                <span class="status-badge">Bot Aktif</span>
+            </div>
+            <button class="btn-danger" onclick="disconnectBot()">Putuskan</button>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">⚙️ Pengaturan Sticker</h3>
+            <div class="input-group">
+                <label>Packname Sticker</label>
+                <input type="text" class="input-field" id="packname" placeholder="Nama pack sticker">
+            </div>
+            <div class="input-group">
+                <label>Author Sticker</label>
+                <input type="text" class="input-field" id="author" placeholder="@username">
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">🔗 Link Grup & Channel</h3>
+            <div class="input-group">
+                <label>Group Link</label>
+                <input type="text" class="input-field" id="groupLink" placeholder="https://chat.whatsapp.com/...">
+            </div>
+            <div class="input-group">
+                <label>Channel Link</label>
+                <input type="text" class="input-field" id="channelLink" placeholder="https://whatsapp.com/channel/...">
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">🎮 Pengaturan Fitur</h3>
+            <div class="toggle-list">
+                <div class="toggle-item">
+                    <div class="toggle-info">
+                        <h4>Fitur Menfess</h4>
+                        <p>Kirim pesan anonim</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="menfess" checked onchange="updateSetting('menfess', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <div class="toggle-info">
+                        <h4>Fitur Confess</h4>
+                        <p>Kirim confess ke nomor</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="confess" checked onchange="updateSetting('confess', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <div class="toggle-info">
+                        <h4>Auto Typing</h4>
+                        <p>Tampilkan sedang mengetik</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="autoTyping" onchange="updateSetting('autoTyping', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <div class="toggle-info">
+                        <h4>Auto Recording</h4>
+                        <p>Tampilkan merekam audio</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="autoRecord" onchange="updateSetting('autoRecord', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-item">
+                    <div class="toggle-info">
+                        <h4>Online Presence</h4>
+                        <p>Tampilkan status online</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="onlinePresence" checked onchange="updateSetting('onlinePresence', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">📋 Command Bot</h3>
+            <div class="commands-box">
+                <div class="command">
+                    <span class="cmd-name">!menu</span>
+                    <span class="cmd-desc">Tampilkan menu utama</span>
+                </div>
+                <div class="command">
+                    <span class="cmd-name">!menfess [pesan]</span>
+                    <span class="cmd-desc">Kirim menfess anonim</span>
+                </div>
+                <div class="command">
+                    <span class="cmd-name">!confess [nomor]|[pesan]</span>
+                    <span class="cmd-desc">Kirim confess ke seseorang</span>
+                </div>
+                <div class="command">
+                    <span class="cmd-name">!sticker</span>
+                    <span class="cmd-desc">Buat sticker dari gambar</span>
+                </div>
+                <div class="command">
+                    <span class="cmd-name">!owner</span>
+                    <span class="cmd-desc">Info owner bot</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Berhasil disalin!</div>
+
+    <script>
+        const API_URL = window.location.origin + '/api';
+        let currentPhone = localStorage.getItem('botPhone') || '';
+        let pollInterval = null;
+
+        if (currentPhone) {
+            document.getElementById('phoneInput').value = currentPhone;
+            checkStatus(currentPhone);
+        }
+
+        async function connectBot() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (!phone || phone.length < 10) {
+                alert('Masukkan nomor yang valid!');
+                return;
+            }
+
+            const btn = document.getElementById('connectBtn');
+            btn.disabled = true;
+            btn.textContent = 'Menghubungkan...';
+
+            try {
+                const response = await fetch(`${API_URL}/connect`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: phone })
+                });
+
+                const data = await response.json();
+
+                if (data.pairingCode) {
+                    currentPhone = phone;
+                    localStorage.setItem('botPhone', phone);
+                    
+                    document.getElementById('pairingCode').textContent = data.pairingCode;
+                    showScreen('pairingScreen');
+                    
+                    pollInterval = setInterval(() => checkStatus(phone), 3000);
+                } else {
+                    alert('Gagal generate pairing code');
+                    btn.disabled = false;
+                    btn.textContent = 'Hubungkan Bot';
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = 'Hubungkan Bot';
+            }
+        }
+
+        async function checkStatus(phone) {
+            if (!phone) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/status?phone=${phone}`);
+                const data = await response.json();
+
+                if (data.connected) {
+                    clearInterval(pollInterval);
+                    loadSettings(data.settings);
+                    showScreen('dashboardScreen');
+                }
+            } catch (error) {
+                console.error('Status check failed:', error);
+            }
+        }
+
+        function loadSettings(settings = {}) {
+            document.getElementById('packname').value = settings.packname || 'Sairi Bot';
+            document.getElementById('author').value = settings.author || '@Sairi Botz';
+            document.getElementById('groupLink').value = settings.groupLink || '';
+            document.getElementBy
